@@ -71,7 +71,7 @@ class Layer:
     """
     Handles backpropagation and feeding forward.
     Contains:
-        Its index
+        Layer index
         A list of nodes
         Number of nodes in the list (nnodes)
     """
@@ -94,7 +94,7 @@ class Layer:
         """
         Begins feeding forward
         This method works similarly to "propagate_forward" defined below
-        The only difference: input vector doesn't go through the activation function
+        The only difference is that the input vector doesn't go through the activation function
         """
         bias_weights_vector = np.array([node.bias_weight for node in other.nodes])
 
@@ -139,10 +139,10 @@ class Layer:
         """
         Добавляем входному вектору сигнал от сдвига
         """
-        vector = vector
+        vector = sigmoid(vector) # vector goes through the activation function
         vector = np.append(vector, bias_signal) # Bias signal is added to a vector
 
-        return sigmoid(memory_matrix.dot(vector)) # Returns input vector for the next layer
+        return (memory_matrix.dot(vector)) # Returns input vector for the next layer
 
     def start_backpropagation(self, e, learning_rate): # For output layer only; computes local_grad for each node in self; e - error vector
         """
@@ -254,7 +254,7 @@ class Network:
         """
         mse = 0
         for instance in batch_tuple: # Each instance in the batch has its effect on the total error because it wants different outputs
-            output = self.feed_forward(np.array(instance[0])) # Feeds forward the "in" vector
+            output = sigmoid(self.feed_forward(np.array(instance[0]))) # Feeds forward the "in" vector
             error_vector = instance[1] - output
             mse += sum(error_vector**2)
 
@@ -276,3 +276,23 @@ class Network:
                 node.modify_bias()
 
         #print('MSE:', mse)
+
+
+a = Network((3, 2, 1)) #Имеем сеть 2-2-1. Сейчас запрогана задача ИЛИ
+
+i = 0
+while True:
+    i += 1
+    batch = (
+        (np.array([0, 0, 0]), np.array([0])),
+        (np.array([0, 0, 1]), np.array([1])),
+        (np.array([0, 1, 0]), np.array([1])),
+        (np.array([0, 1, 1]), np.array([1])),
+        (np.array([1, 0, 0]), np.array([1])),
+        (np.array([1, 0, 1]), np.array([1])),
+        (np.array([1, 1, 0]), np.array([1])),
+        (np.array([1, 1, 1]), np.array([0])),
+    )
+    a.learning_iteration(batch, 0.75)
+    print('Epoch {}'.format(i))
+    print('----------------------')
