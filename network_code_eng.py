@@ -14,7 +14,6 @@ def sigmoid(x):
 
     return 1 / (1 + np.exp(-x))
 
-
 def s_df(x):
 
     return  sigmoid(x) * (1 - sigmoid(x))
@@ -26,15 +25,15 @@ class Node:
     Contains:
         Its position in the network (position, layernum)
         A vector of weights going out of it.
-        Its local gradient
-        Error
-        индуцированное поле (сигнал выхода до активации сигмоидой)
-        вектор поправки к собственным синаптическим весам
-        значение поправки к собственному весу сдвига (сигнал сдвига всегда = 1)
+        Local gradient
+        Induced field
+        Weights deltas vector
+        Bias weight delta
+        Its own bias weight; bias signal is always 1
     """
     def __init__(self, position):
         """
-        position - кортеж вида (номер нейрона в слое, номер слоя)
+        position is a (node index, layer index) tuple
         """
         self.position = position[0]
         self.layernum = position[1]
@@ -45,49 +44,40 @@ class Node:
         self.weights_delta = None
         self.bias_weight_delta = 0
 
-    def connect_node(self, layer): # Initializes a vector of weights for synapses this node has with the next layer
+    def connect_node(self, layer):
         """
-        Соединяет нейрон с идущим следующим после собственного слоем
-        Вызывается при инициализации сети
-        Инициализирует случайный вектор весов, нулевой вектор поправки
+        Initializes a vector of weights for synapses this node has with the next layer
+        Weights are initialized randomly
         """
         self.weights = (np.random.rand(layer.nnodes)) * 2 - 1
-        #print('Начальные веса', self.weights)
         self.weights_delta = np.zeros(layer.nnodes)
 
     def apply_deltas(self):
         """
-        Применяет поправки к весам
-        Обнуляет вектор поправок
+        Applies weights' deltas
         """
         self.weights += self.weights_delta
-        #print('Веса', self.weights)
         self.weights_delta = np.zeros(self.weights_delta.shape)
 
     def modify_bias(self):
         """
-        Применяет поправку к весу сдвига
-        Обнуляет значение поправки
+        Applies changes to bias weight
         """
-        #print('Сдвиг', self.bias_weight)
         self.bias_weight += self.bias_weight_delta
-
         self.bias_weight_delta = 0
-
 
 
 class Layer:
     """
-    Слой нейронной сети
-    Отвечает за распространение сигнала вперед-обратное распространение
-    Хранит:
-        собственный номер в сети
-        число нейронов в себе
-        список объектов-нейронов
+    Handles backpropagation and feeding forward.
+    Contains:
+        Its index
+        A list of nodes
+        Number of nodes in the list (nnodes)
     """
     def __init__(self, nnodes, number):
         """
-        Инициализация слоя number. Инициализация nnodes нейронов слоя.
+        Nnodes are initialized in "nodes" list
         """
         self.number = number
         self.nnodes = nnodes
@@ -95,22 +85,22 @@ class Layer:
 
     def connect_layer(self, other):
         """
-        Соединяет слой self с ПРЕДЫДУЩИМ слоем other
-        Вызывает метод соединения для каждого нейрона предыдущего слоя
+        Connects layer self with the PREVIOUS layer other
         """
         for node in other.nodes:
             node.connect_node(self)
 
     def start_forward_propagation(self, other, vector):
         """
-        Начинает распространение сигнала вперёд.
-        Работа во многом аналогична методу propagate_forward, cм. ниже
-        Единственное отличие - не пропускает через сигмоиду входной вектор
+        Begins feeding forward
+        This method works similarly to "propagate_forward" defined below
+        The only difference: input vector doesn't go through the activation function
         """
         bias_weights_vector = np.array([node.bias_weight for node in other.nodes])
 
         weights_stack = [node.weights for node in self.nodes]
         weights_stack.append(bias_weights_vector)
+
         memory_matrix = np.vstack(weights_stack)
         memory_matrix = np.transpose(memory_matrix)
 
@@ -122,7 +112,6 @@ class Layer:
 
         return memory_matrix.dot(vector)
 
-
     def propagate_forward(self, other, vector):
         """
         Отображает входной вектор слоя self во входной вектор для СЛЕДУЮЩЕГО слоя other
@@ -131,7 +120,6 @@ class Layer:
         Составляет вектор весов сдвига для слоя other
         """
         bias_weights_vector = np.array([node.bias_weight for node in other.nodes])
-
         """
         Собирает матрицу весов из весов каждого собственного нейрона
         Добавляет вектор весов сдвига следующего слоя
@@ -139,6 +127,7 @@ class Layer:
         """
         weights_stack = [node.weights for node in self.nodes]
         weights_stack.append(bias_weights_vector)
+
         memory_matrix = np.vstack(weights_stack) # Stacks up weight vectors of each node in the self and bias weight vector of other
         memory_matrix = np.transpose(memory_matrix) # Each column is a weight vector; ncols = nnodes + 1, nrows + 1 = nsynapses;
         """
@@ -147,7 +136,6 @@ class Layer:
         """
         for i in range(len(self.nodes)):
             self.nodes[i].induced_field = vector[i] # Each node stores its induced field later used to compute local_grad
-
         """
         Добавляем входному вектору сигнал от сдвига
         """
