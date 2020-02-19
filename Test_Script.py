@@ -1,4 +1,4 @@
-import Network_code as net
+import network_code as net
 import numpy as np
 
 

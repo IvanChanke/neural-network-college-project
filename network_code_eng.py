@@ -1,23 +1,10 @@
 import numpy as np
 """
-ТЕКУЩИЕ ПАРАМЕТРЫ:
-    ВЕСА ОТ -1 ДО 1
-    СДВИГ ОТ -4 ДО 4
+CURRENT PARAMETERS:
+    WEIGHTS RANGE (-1;1)
+    BIAS RANGE (-1;1)
 
-TODO: STOCHASTIC GRADIENT DESCENT. СДЕЛАТЬ ВИЗУАЛИЗАЦИЮ (?)
-
-Найти инициализацию сдвига
-Поэкспериментирповать с начальными значениями весов - установить их от -1 до 1
-установить вес сдвига от -1 до 1
-"""
-"""
-Старые комментарии на английском, которые писал "для себя", решил не удалять
-Пусть будут.
-
-Ниже определены сигмоида и её производная.
-Затем классы нейрона -> слоя сети -> самой сети
-Каждый нейрон в сети хранит вектор весов, из него исходящих, а также вес собственного сдвига.
-Сигнал сдвига всегда равен 1.
+Sigmoid and its derivative are defined below
 """
 
 bias_signal = 1
@@ -35,12 +22,12 @@ def s_df(x):
 
 class Node:
     """
-    Элементарная структурная единица сети.
-    Хранит:
-        координаты в сети
-        вектор исходящих синаптических весов
-        локальный градиент
-        значение ошибки (для нейронов выходного слоя)
+    A basic node
+    Contains:
+        Its position in the network (position, layernum)
+        A vector of weights going out of it.
+        Its local gradient
+        Error
         индуцированное поле (сигнал выхода до активации сигмоидой)
         вектор поправки к собственным синаптическим весам
         значение поправки к собственному весу сдвига (сигнал сдвига всегда = 1)
@@ -54,7 +41,6 @@ class Node:
         self.weights = None
         self.bias_weight = None
         self.local_grad = None
-        self.error = None
         self.induced_field = None
         self.weights_delta = None
         self.bias_weight_delta = 0

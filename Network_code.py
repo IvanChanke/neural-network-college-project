@@ -40,7 +40,6 @@ class Node:
         координаты в сети
         вектор исходящих синаптических весов
         локальный градиент
-        значение ошибки (для нейронов выходного слоя)
         индуцированное поле (сигнал выхода до активации сигмоидой)
         вектор поправки к собственным синаптическим весам
         значение поправки к собственному весу сдвига (сигнал сдвига всегда = 1)
@@ -54,7 +53,6 @@ class Node:
         self.weights = None
         self.bias_weight = None
         self.local_grad = None
-        self.error = None
         self.induced_field = None
         self.weights_delta = None
         self.bias_weight_delta = 0
