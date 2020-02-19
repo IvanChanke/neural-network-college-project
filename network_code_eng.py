@@ -1,5 +1,6 @@
 """
 (C) Ivan Chanke 2020
+
 Contains classes:
     Node - > Layer -> Network
 The three constantly refer to one another and aren't supposed to work separately
