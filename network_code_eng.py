@@ -235,23 +235,3 @@ class Network:
                 node.modify_bias()
 
         #print('MSE:', mse)
-
-
-a = Network((3, 2, 1)) #Имеем сеть 2-2-1. Сейчас запрогана задача ИЛИ
-
-i = 0
-while True:
-    i += 1
-    batch = (
-        (np.array([0, 0, 0]), np.array([0])),
-        (np.array([0, 0, 1]), np.array([1])),
-        (np.array([0, 1, 0]), np.array([1])),
-        (np.array([0, 1, 1]), np.array([1])),
-        (np.array([1, 0, 0]), np.array([1])),
-        (np.array([1, 0, 1]), np.array([1])),
-        (np.array([1, 1, 0]), np.array([1])),
-        (np.array([1, 1, 1]), np.array([0])),
-    )
-    a.learning_iteration(batch, 0.75)
-    print('Epoch {}'.format(i))
-    print('----------------------')
