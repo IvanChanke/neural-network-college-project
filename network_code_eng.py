@@ -221,7 +221,9 @@ class Network:
             self.feed_backward(error_vector, learning_rate)
 
             #print(instance[0], ':', output, "| e:", error_vector)
-            print(instance[0], ':', output)
+            #print(instance[0], ':', output)
+            print(instance[0][0], ':', output)
+
 
         for node in self.layers[0].nodes:
             node.apply_deltas()
