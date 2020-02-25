@@ -2,36 +2,62 @@ import numpy as np
 import network_code_eng as net
 from PIL import Image
 
-def whiteness(pixel):
+def darkness(pixel):
 
-    return sum(pixel[:-1]) / 765
+    return 1 - pixel / 255
 
+def image_to_vector(image):
+    vector = []
+    for i in range(28):
+        for j in range(28):
+            vector.append(darkness(image[i, j]))
+
+    return np.array(vector)
 
 """
-1 is totally white
-0 is pitch black
+0 is totally white
+1 is pitch black
 """
-network = net.Network((784, 32, 32, 1))
+network = net.Network((784, 32, 32, 6))
 
-img = Image.open('MNIST_number7.png')
-pix_white = Image.open('white.png').load()
-pix_black = Image.open('black.png').load()
+zero = Image.open('zero.jpg').load()
+one = Image.open('one.jpg').load()
+two = Image.open('two.jpg').load()
+three = Image.open('three.jpg').load()
+four = Image.open('four.jpg').load()
+five = Image.open('five.jpg').load()
+six = Image.open('six.jpg').load()
+seven = Image.open('seven.jpg').load()
+eight = Image.open('eight.jpg').load()
+nine = Image.open('nine.jpg').load()
 
-white_vector = []
-for i in range(28):
-    for j in range(28):
-        white_vector.append(whiteness(pix_white[i, j]))
-white_vector = np.array(white_vector)
+zero_vector = image_to_vector(zero)
+one_vector = image_to_vector(one)
+two_vector = image_to_vector(two)
+three_vector = image_to_vector(three)
+four_vector = image_to_vector(four)
+five_vector = image_to_vector(five)
+six_vector = image_to_vector(six)
+seven_vector = image_to_vector(seven)
+eight_vector = image_to_vector(eight)
+nine_vector = image_to_vector(nine)
 
-black_vector = []
-for i in range(28):
-    for j in range(28):
-        black_vector.append(whiteness(pix_black[i, j]))
-black_vector = np.array(black_vector)
+
 
 batch = (
-    (white_vector, np.array([0])),
-    (black_vector, np.array([1])),
+    (zero_vector, np.array([1, 0, 0, 0, 0, 0])),
+    (one_vector, np.array([0, 1, 0, 0, 0, 0])),
+    (two_vector, np.array([0, 0, 1, 0, 0, 0])),
+    (three_vector, np.array([0, 0, 0, 1, 0, 0])),
+    (four_vector, np.array([0, 0, 0, 0, 1, 0])),
+    # (five_vector, np.array([0, 0, 0, 0, 0, 1])),
+    # (six_vector, np.array([0, 0, 0, 0, 0, 0, 1, 0, 0, 0])),
+    # (seven_vector, np.array([0, 0, 0, 0, 0, 0, 0, 1, 0, 0])),
+    # (eight_vector, np.array([0, 0, 0, 0, 0, 0, 0, 0, 1, 0])),
+    # (nine_vector, np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1])),
 )
+i = 0
 while True:
-    network.learning_iteration(batch, 0.5)
+    i += 1
+    network.learning_iteration(batch, 0.75)
+    print('Epoch', i)

@@ -7,10 +7,19 @@ The three constantly refer to one another and aren't supposed to work separately
 For details on math model visit GitHub directory corresponding to the project
 """
 import numpy as np
-
+import pickle
 
 bias_signal = 1
 
+def load_model(file):
+    """
+    Loads network model from file
+    """
+    f = open(file, 'rb')
+    model = pickle.load(f)
+    f.close()
+
+    return model
 
 def sigmoid(x):
 
@@ -165,12 +174,16 @@ class Network:
     Stores:
         Current signal
         A list of layers
+        last mse
+        Number of epoch trained
     Initializing a network also initializes its layers and nodes in them
     """
     def __init__(self, structure): # Structure is a tuple of nnodes in each layer
 
         self.signal = None
         self.layers = []
+        self.mse = None
+        self.epochs = 0
 
         for i in range(len(structure)): # Constructing layers
             self.layers.append(Layer(structure[i], i))
@@ -212,17 +225,18 @@ class Network:
         One complete learning epoch
         batch_tuple is a tuple of tuples: ((in, desired_out), (...), ..., (...))
         """
-        mse = 0
+        self.epochs += 1
+        self.mse = 0
         for instance in batch_tuple:
             output = sigmoid(self.feed_forward(np.array(instance[0])))
             error_vector = instance[1] - output
-            mse += sum(error_vector**2)
+            self.mse += sum(error_vector**2)
 
             self.feed_backward(error_vector, learning_rate)
 
             #print(instance[0], ':', output, "| e:", error_vector)
-            #print(instance[0], ':', output)
-            print(instance[0][0], ':', output)
+            #print((np.where(instance[1] == 1))[0], ':', np.around(output, decimals = 4))
+            print(instance[0], ':', output)
 
 
         for node in self.layers[0].nodes:
@@ -236,4 +250,13 @@ class Network:
         for node in self.layers[-1].nodes:
                 node.modify_bias()
 
-        #print('MSE:', mse)
+        print('MSE:', self.mse)
+        print('----------------')
+
+    def save_model(self, file):
+        """
+        Stores current model as a file
+        """
+        f = open(file, 'wb')
+        pickle.dump(self, f)
+        f.close()
