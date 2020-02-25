@@ -7,6 +7,7 @@ import network_code_eng as net
 # GLOBAL VARIABLES
 
 model = None
+model_name = None
 mainfont = ('calibri', '12')
 
 class DigitsRecognizerApp(tk.Tk):
@@ -21,7 +22,6 @@ class DigitsRecognizerApp(tk.Tk):
         self.frames['Home'] = Page(self)
         self.frames['Query'] = Page(self)
         self.frames['Learning'] = Page(self)
-        self.frames['Config'] = Page(self)
         self.frames['Load'] = Page(self)
         self.frames['New'] = Page(self)
 
@@ -57,15 +57,28 @@ def select_number():
 def load_model():
 
     global model
+    global model_name
 
     file = str(file_name_entry.get())
     try:
         f = open(file, 'rb')
         model = pickle.load(f)
+        model_name = file
         f.close()
+        status_text.set(model_name)
     except:
         file_name_entry.delete(0, tk.END)
         file_name_entry.insert(tk.END, 'No such file')
+
+def initialize_model(nlayers, n_first, n_hidden1, n_nidden2, n_last): # FUNCTION DRAFT
+
+    global model
+
+    structure = []
+    for i in range(nlayers):
+        pass
+    model = net.Network(structure)
+
 
 def update_time():
     clock_home.config(text=strftime("%H:%M:%S"))
@@ -73,7 +86,8 @@ def update_time():
 
 
 app = DigitsRecognizerApp()
-
+# STRINGVARS
+status_text = tk.StringVar()
 
 # ---HOME---
 working = app.frames['Home']
@@ -90,11 +104,17 @@ exit_h = tk.Button(
     working, text = 'Exit', font = mainfont,
     width = 7, command = app.quit
 )
-configure_model = tk.Button(
-    working, text = 'Configure Model', font = mainfont, width = 24,
-    command = lambda: app.show_frame('Config')
+load = tk.Button(
+    working, text = 'Load', font = mainfont,
+    width = 7, command = lambda: app.show_frame('Load')
 )
-configure_model.place(anchor = 'c', relx = 0.5, rely = 0.55)
+initialize = tk.Button(
+    working, text = 'New Model', font = mainfont,
+    width = 9, command = lambda: app.show_frame('New')
+)
+
+load.place(anchor = 'c', relx = 0.3, rely = 0.52)
+initialize.place(anchor = 'c', relx = 0.65, rely = 0.52)
 golearn_h.place(anchor = 'c', relx = 0.23, rely = 0.9)
 goquery_h.place(anchor = 'c', relx = 0.5, rely = 0.9)
 exit_h.place(anchor = 'c', relx = 0.77, rely = 0.9)
@@ -125,58 +145,25 @@ clock_home.place(anchor ='c', relx = 0.5, rely = 0.25)
 clock_home.after(100, update_time)
 
 # Texts and Entries
-status_box = tk.Text(
-    working, height = 3, width = 25,
-    font = mainfont, insertontime = 0
+status_box = tk.Label(
+    working, height = 3, width = 25, textvariable = status_text,
+    font = mainfont
 )
 
-status_box.insert(tk.END, '{:^38}'.format('No loaded model'))
-status_box.insert(tk.END, '\n\n{:}'.format('Click below to manage models'))
+if (model == None):
+    status_text.set('No model loaded')
+
 
 status_box.place(anchor = 'c', relx = 0.5, rely = 0.4)
 
 
-
-#---CONFIGURE---
-working = app.frames['Config']
-# Buttons
-gohome_c = tk.Button(
-    working, text = 'Home', font = mainfont,
-    width = 7, command = lambda: app.show_frame('Home')
-)
-load = tk.Button(
-    working, text = 'Load Model', font = mainfont,
-    width = 11, command = lambda: app.show_frame('Load')
-)
-initialize = tk.Button(
-    working, text = 'New Model', font = mainfont,
-    width = 11, command = lambda: app.show_frame('New')
-)
-
-load.place(anchor = 'c', relx = 0.73, rely = 0.41)
-initialize.place(anchor = 'c', relx = 0.27, rely = 0.41)
-gohome_c.place(anchor = 'c', relx = 0.77, rely = 0.9)
-
-# Labels, Text and Entries
-current_model_label = tk.Label(
-    working, text = 'Current model:',
-    font = mainfont
-)
-current_model_text = tk.Text(
-    working, height = 3, width = 25,
-    font = mainfont, insertontime = 0
-)
-current_model_text.insert(tk.END, '{}'.format('No model'))
-
-current_model_label.place(anchor = 'c', relx = 0.5, rely = 0.05)
-current_model_text.place(anchor = 'c', relx = 0.5, rely = 0.22)
 
 #---NEW---
 working = app.frames['New']
 # Buttons
 done_new = tk.Button(
     working, text = 'Done', font = mainfont,
-    width = 7, command = lambda: app.show_frame('Config')
+    width = 7, command = lambda: app.show_frame('Home')
 )
 
 done_new.place(anchor = 'c', relx = 0.77, rely = 0.9)
@@ -186,7 +173,7 @@ working = app.frames['Load']
 # Buttons
 done_load = tk.Button(
     working, text = 'Done', font = mainfont,
-    width = 7, command = lambda: app.show_frame('Config')
+    width = 7, command = lambda: app.show_frame('Home')
 )
 get_model = tk.Button(
     working, text = 'Get Model', font = mainfont,
@@ -200,11 +187,16 @@ enter_path_to_model_label = tk.Label(
     working, text = 'Enter file name:',
     font = mainfont
 )
+instructions_load_label = tk.Label(
+    working, text = 'To load a model, \n enter the file name above \n and press "Get Model"',
+    font = mainfont
+)
 file_name_entry = tk.Entry(
     working, font = mainfont, width = 20,
 )
 
 file_name_entry.place(anchor = 'c', relx = 0.5, rely = 0.2)
+instructions_load_label.place(anchor = 'c', relx = 0.5, rely = 0.5)
 enter_path_to_model_label.place(anchor = 'c', relx = 0.5, rely = 0.1)
 
 #---QUERY---
