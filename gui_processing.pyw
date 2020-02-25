@@ -1,11 +1,13 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from time import strftime
+import pickle
 import network_code_eng as net
 
+# GLOBAL VARIABLES
 
+model = None
 mainfont = ('calibri', '12')
-
 
 class DigitsRecognizerApp(tk.Tk):
 
@@ -20,6 +22,8 @@ class DigitsRecognizerApp(tk.Tk):
         self.frames['Query'] = Page(self)
         self.frames['Learning'] = Page(self)
         self.frames['Config'] = Page(self)
+        self.frames['Load'] = Page(self)
+        self.frames['New'] = Page(self)
 
         self.show_frame('Home')
 
@@ -48,6 +52,20 @@ def select_number():
         num_entry.insert(tk.END, '...')
         selected_number = int(selected_number)
 
+        return selected_number
+
+def load_model():
+
+    global model
+
+    file = str(file_name_entry.get())
+    try:
+        f = open(file, 'rb')
+        model = pickle.load(f)
+        f.close()
+    except:
+        file_name_entry.delete(0, tk.END)
+        file_name_entry.insert(tk.END, 'No such file')
 
 def update_time():
     clock_home.config(text=strftime("%H:%M:%S"))
@@ -111,6 +129,7 @@ status_box = tk.Text(
     working, height = 3, width = 25,
     font = mainfont, insertontime = 0
 )
+
 status_box.insert(tk.END, '{:^38}'.format('No loaded model'))
 status_box.insert(tk.END, '\n\n{:}'.format('Click below to manage models'))
 
@@ -125,22 +144,68 @@ gohome_c = tk.Button(
     working, text = 'Home', font = mainfont,
     width = 7, command = lambda: app.show_frame('Home')
 )
+load = tk.Button(
+    working, text = 'Load Model', font = mainfont,
+    width = 11, command = lambda: app.show_frame('Load')
+)
+initialize = tk.Button(
+    working, text = 'New Model', font = mainfont,
+    width = 11, command = lambda: app.show_frame('New')
+)
+
+load.place(anchor = 'c', relx = 0.73, rely = 0.41)
+initialize.place(anchor = 'c', relx = 0.27, rely = 0.41)
 gohome_c.place(anchor = 'c', relx = 0.77, rely = 0.9)
+
 # Labels, Text and Entries
 current_model_label = tk.Label(
     working, text = 'Current model:',
     font = mainfont
 )
 current_model_text = tk.Text(
-    working, height =1, width = 25,
+    working, height = 3, width = 25,
     font = mainfont, insertontime = 0
 )
-current_model_text.insert(tk.END, '{:^38}'.format('None'))
+current_model_text.insert(tk.END, '{}'.format('No model'))
 
 current_model_label.place(anchor = 'c', relx = 0.5, rely = 0.05)
-current_model_text.place(anchor = 'c', relx = 0.5, rely = 0.15)
+current_model_text.place(anchor = 'c', relx = 0.5, rely = 0.22)
 
+#---NEW---
+working = app.frames['New']
+# Buttons
+done_new = tk.Button(
+    working, text = 'Done', font = mainfont,
+    width = 7, command = lambda: app.show_frame('Config')
+)
 
+done_new.place(anchor = 'c', relx = 0.77, rely = 0.9)
+
+#---LOAD---
+working = app.frames['Load']
+# Buttons
+done_load = tk.Button(
+    working, text = 'Done', font = mainfont,
+    width = 7, command = lambda: app.show_frame('Config')
+)
+get_model = tk.Button(
+    working, text = 'Get Model', font = mainfont,
+    width = 20, command = lambda: load_model()
+)
+get_model.place(anchor = 'c', relx = 0.5, rely = 0.3)
+done_load.place(anchor = 'c', relx = 0.77, rely = 0.9)
+
+# Labels, Text and Entries
+enter_path_to_model_label = tk.Label(
+    working, text = 'Enter file name:',
+    font = mainfont
+)
+file_name_entry = tk.Entry(
+    working, font = mainfont, width = 20,
+)
+
+file_name_entry.place(anchor = 'c', relx = 0.5, rely = 0.2)
+enter_path_to_model_label.place(anchor = 'c', relx = 0.5, rely = 0.1)
 
 #---QUERY---
 working = app.frames['Query']
