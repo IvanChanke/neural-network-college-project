@@ -1,6 +1,8 @@
 import tkinter as tk
 from PIL import Image, ImageTk
 from time import strftime
+import network_code_eng as net
+
 
 mainfont = ('calibri', '12')
 
@@ -13,10 +15,11 @@ class DigitsRecognizerApp(tk.Tk):
         self.geometry('220x370')
         self.resizable(width=False, height=False)
 
-        self.frames = {}  # Словарь страниц
+        self.frames = {}  # A dictionary of pages
         self.frames['Home'] = Page(self)
         self.frames['Query'] = Page(self)
         self.frames['Learning'] = Page(self)
+        self.frames['Config'] = Page(self)
 
         self.show_frame('Home')
 
@@ -69,6 +72,11 @@ exit_h = tk.Button(
     working, text = 'Exit', font = mainfont,
     width = 7, command = app.quit
 )
+configure_model = tk.Button(
+    working, text = 'Configure Model', font = mainfont, width = 24,
+    command = lambda: app.show_frame('Config')
+)
+configure_model.place(anchor = 'c', relx = 0.5, rely = 0.55)
 golearn_h.place(anchor = 'c', relx = 0.23, rely = 0.9)
 goquery_h.place(anchor = 'c', relx = 0.5, rely = 0.9)
 exit_h.place(anchor = 'c', relx = 0.77, rely = 0.9)
@@ -79,41 +87,58 @@ clock_home = tk.Label(
     font = ('calibri', '16')
 )
 update_time()
-status_text = tk.Label(working, font = ('calibri', '14'), text = '• Status:')
 title_text = tk.Label(
     working, font = ('calibri', '14'),
-    text = 'DigitsRecognizer v.0.0.1'
+    text = 'NeuralNet Project'
 )
 copyright_text = tk.Label(
     working, font = ('calibri', '10'),
     text = '© Ivan Chanke'
-)
-greeting_text = tk.Label(
-    working,
-    text = 'Welcome to DigitsRecognizer\n - a neural network-based\n\
-    digit recognizing system.',
-    font = ('calibri', '10')
 )
 instructions_text = tk.Label(
     working, text = 'Go to "Train" to configure the network\n\
     Go to "Query" to test the network', font = ('calibri', '10')
 )
 
-status_text.place(relx = 0.05, rely = 0.5)
 copyright_text.place(anchor = 'n', relx = 0.5, rely = 0.12)
 title_text.place(anchor = 'n', relx = 0.5, rely = 0.05)
-greeting_text.place(anchor = 'c', relx = 0.5, rely = 0.25)
 instructions_text.place(anchor = 'c', relx = 0.5, rely = 0.7)
-clock_home.place(anchor ='c', relx = 0.5, rely = 0.4)
+clock_home.place(anchor ='c', relx = 0.5, rely = 0.25)
 clock_home.after(100, update_time)
 
-# Texts and entries
+# Texts and Entries
 status_box = tk.Text(
-    working, height = 1, width = 7,
+    working, height = 3, width = 25,
     font = mainfont, insertontime = 0
 )
-status_box.place(relx = 0.4, rely = 0.51)
-status_box.insert(tk.END, 'Ready')
+status_box.insert(tk.END, '{:^38}'.format('No loaded model'))
+status_box.insert(tk.END, '\n\n{:}'.format('Click below to manage models'))
+
+status_box.place(anchor = 'c', relx = 0.5, rely = 0.4)
+
+
+
+#---CONFIGURE---
+working = app.frames['Config']
+# Buttons
+gohome_c = tk.Button(
+    working, text = 'Home', font = mainfont,
+    width = 7, command = lambda: app.show_frame('Home')
+)
+gohome_c.place(anchor = 'c', relx = 0.77, rely = 0.9)
+# Labels, Text and Entries
+current_model_label = tk.Label(
+    working, text = 'Current model:',
+    font = mainfont
+)
+current_model_text = tk.Text(
+    working, height =1, width = 25,
+    font = mainfont, insertontime = 0
+)
+current_model_text.insert(tk.END, '{:^38}'.format('None'))
+
+current_model_label.place(anchor = 'c', relx = 0.5, rely = 0.05)
+current_model_text.place(anchor = 'c', relx = 0.5, rely = 0.15)
 
 
 
@@ -206,6 +231,7 @@ digit_considered_box.insert(tk.END, '07')
 response_box.place(relx = 0.72, rely = 0.405)
 response_box.insert(tk.END, '07')
 num_entry.place(anchor = 'se', relx = 0.35, rely = 0.694)
+
 
 #---LEARNING---
 working = app.frames['Learning']
