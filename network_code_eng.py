@@ -176,14 +176,16 @@ class Network:
         A list of layers
         last mse
         Number of epoch trained
+        Task it performs
     Initializing a network also initializes its layers and nodes in them
     """
-    def __init__(self, structure): # Structure is a tuple of nnodes in each layer
+    def __init__(self, structure, task): # Structure is a tuple of nnodes in each layer
 
         self.signal = None
         self.layers = []
         self.mse = None
         self.epochs = 0
+        self.task = task
 
         for i in range(len(structure)): # Constructing layers
             self.layers.append(Layer(structure[i], i))

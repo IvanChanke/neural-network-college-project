@@ -4,9 +4,8 @@ import numpy as np
 XOR CURRENTLY PROGRAMMED IN
 """
 
-a = net.Network((3, 2, 1))
-a.save_model('test')
-a = net.load_model('test')
+
+a = net.load_model('XOR8000')
 i = 0
 while i < 2000:
     i += 1
@@ -23,3 +22,5 @@ while i < 2000:
     a.learning_iteration(batch, 0.7)
     print('Epoch {}'.format(a.epochs))
     print('----------------------')
+
+a.save_model('XOR6000')

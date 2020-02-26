@@ -3,11 +3,14 @@ from PIL import Image, ImageTk
 from time import strftime
 import pickle
 import network_code_eng as net
+import training_data as dt
 
 # GLOBAL VARIABLES
 
-model = None
+model = None # Current model programmed in
 model_name = None
+learning_rate = 0
+training_data = None # Training data depends on the model selected
 mainfont = ('calibri', '12')
 
 class DigitsRecognizerApp(tk.Tk):
@@ -54,6 +57,12 @@ def select_number():
 
         return selected_number
 
+def update_time():
+    clock_home.config(text=strftime("%H:%M:%S"))
+    clock_home.after(1000, update_time)
+
+# ---MODEL-FILE-MANAGEMENT---
+
 def load_model():
 
     global model
@@ -72,14 +81,21 @@ def load_model():
         file_name_entry.delete(0, tk.END)
         file_name_entry.insert(tk.END, 'No such file')
 
-def initialize_model(nlayers, n_first, n_hidden1, n_nidden2, n_last): # FUNCTION DRAFT
+def initialize_model(preset):
 
     global model
+    global training_data
 
-    structure = []
-    for i in range(nlayers):
-        pass
-    model = net.Network(structure)
+    models = {
+        'XOR3' : net.Network((3, 2, 1), 'XOR3'),
+        'XOR2' : net.Network((2, 2, 1), 'XOR2'),
+        'AND3' : net.Network((3, 2, 1), 'AND3'),
+        'OR3' : net.Network((3, 2, 1), 'OR3')
+    }
+    training_data = dt.data[preset]
+    
+    model = models[preset]
+    status_text.set('Unsaved {}'.format(preset))
 
 def delete_model():
 
@@ -100,17 +116,30 @@ def save_model():
     pickle.dump(model, f)
     file_name_entry.delete(0, tk.END)
     file_name_entry.insert(tk.END, 'Model saved')
+    status_text.set(file)
     f.close()
 
+# ---TRAINING-CONTROL---
 
-def update_time():
-    clock_home.config(text=strftime("%H:%M:%S"))
-    clock_home.after(1000, update_time)
+def set_lrate():
 
+    global learning_rate
+
+    learning_rate = float(learning_rate_box_l.get())
+    print(learning_rate)
+    rate_text.set(learning_rate)
 
 app = DigitsRecognizerApp()
+
 # STRINGVARS
 status_text = tk.StringVar()
+status_text.set('No loaded model')
+mse_text = tk.StringVar()
+mse_text.set(None)
+rate_text = tk.StringVar()
+rate_text.set(None)
+learning_status_text = tk.StringVar()
+learning_status_text.set('Currently\nnot\nlearning')
 
 # ---HOME---
 working = app.frames['Home']
@@ -156,14 +185,9 @@ copyright_text = tk.Label(
     working, font = ('calibri', '10'),
     text = '© Ivan Chanke'
 )
-instructions_text = tk.Label(
-    working, text = 'Go to "Train" to configure the network\n\
-    Go to "Query" to test the network', font = ('calibri', '10')
-)
 
 copyright_text.place(anchor = 'n', relx = 0.5, rely = 0.12)
 title_text.place(anchor = 'n', relx = 0.5, rely = 0.05)
-instructions_text.place(anchor = 'c', relx = 0.5, rely = 0.7)
 clock_home.place(anchor ='c', relx = 0.5, rely = 0.25)
 clock_home.after(100, update_time)
 
@@ -172,10 +196,6 @@ status_box = tk.Label(
     working, height = 3, width = 25, textvariable = status_text,
     font = mainfont
 )
-
-if (model == None):
-    status_text.set('No loaded model')
-
 
 status_box.place(anchor = 'c', relx = 0.5, rely = 0.4)
 
@@ -188,13 +208,33 @@ done_new = tk.Button(
     working, text = 'Done', font = mainfont,
     width = 7, command = lambda: app.show_frame('Home')
 )
+xor3_button = tk.Button(
+    working, text = 'XOR3', font = mainfont,
+    width = 15, command = lambda: initialize_model('XOR3')
+)
+xor2_button = tk.Button(
+    working, text = 'XOR2', font = mainfont,
+    width = 15, command = lambda: initialize_model('XOR2')
+)
+and3_button = tk.Button(
+    working, text = 'AND4', font = mainfont,
+    width = 15, command = lambda: initialize_model('AND3')
+)
+or3_button = tk.Button(
+    working, text = 'OR3', font = mainfont,
+    width = 15, command = lambda: initialize_model('OR3')
+)
 
+xor3_button.place(anchor = 'c', relx = 0.5, rely = 0.4)
+xor2_button.place(anchor = 'c', relx = 0.5, rely = 0.5)
+and3_button.place(anchor = 'c', relx = 0.5, rely = 0.6)
+or3_button.place(anchor = 'c', relx = 0.5, rely = 0.7)
 done_new.place(anchor = 'c', relx = 0.77, rely = 0.9)
 
 # Labels, Text and Entries
 
 instructions_new_label = tk.Label(
-    working, text = 'To create a new model,\n set the configuration \n \
+    working, text = 'To create a new model,\n select a configuration \n \
     and press "Create Model"\n To save, go to "Load" page',
     font = mainfont
 )
@@ -206,6 +246,7 @@ instructions_new_label.place(anchor = 'c', relx = 0.5, rely = 0.15)
 
 #---LOAD---
 working = app.frames['Load']
+
 # Buttons
 done_load = tk.Button(
     working, text = 'Done', font = mainfont,
@@ -248,6 +289,7 @@ enter_path_to_model_label.place(anchor = 'c', relx = 0.5, rely = 0.39)
 
 #---QUERY---
 working = app.frames['Query']
+
 # Buttons
 reset_accuracy_q = tk.Button(
     working, text = 'Reset accuracy', font = mainfont,
@@ -280,13 +322,14 @@ golearn_q.place(anchor = 'c', relx = 0.23, rely = 0.9)
 gohome_q.place(anchor = 'c', relx = 0.5, rely = 0.9)
 exit_q.place(anchor = 'c', relx = 0.77, rely = 0.9)
 next_instance_q.place(anchor = 'c', relx = 0.5, rely = 0.550)
+
 # Labels
 mnist_num_pic = ImageTk.PhotoImage(Image.open('MNIST_number7.png'))
 num_pic_label = tk.Label(
     working, image = mnist_num_pic,
 )
 mode_text_q = tk.Label(
-    working, text = 'The Network is in query mode.',
+    working, text = 'Query Control',
     font = mainfont
 )
 accuracy_text = tk.Label(
@@ -311,6 +354,7 @@ accuracy_text.place(relx = 0.02, rely = 0.2)
 digit_text.place(relx = 0.02, rely = 0.3)
 digpic_text.place(relx = 0.02, rely = 0.1)
 response_text.place(relx = 0.02, rely = 0.4)
+
 # Text and entries
 accuracy_box = tk.Text(
     working, height = 1, width = 5,
@@ -343,7 +387,7 @@ working = app.frames['Learning']
 #Buttons
 update_rate_l = tk.Button(
     working, text = 'Set learning rate', width = 13,
-    font = mainfont
+    font = mainfont, command = lambda: set_lrate()
     )
 reset_l = tk.Button(working, text = 'Reset', width = 7, font = mainfont)
 start_l = tk.Button(working, text = 'Start', width = 7, font = mainfont)
@@ -370,23 +414,23 @@ gohome_l.place(anchor = 'c', relx = 0.5, rely = 0.9)
 exit_l.place(anchor = 'c', relx = 0.77, rely = 0.9)
 
 # Labels and entries
-learning_info_l = tk.Text(
-    working, height = 5, width = 12, font = mainfont, insertontime = 0
+learning_info_l = tk.Label(
+    working, height = 5, width = 12, font = mainfont, textvariable = learning_status_text
 )
-speed_box_l = tk.Text(
-    working, height = 1, width = 5, font = mainfont, insertontime = 0
+speed_box_l = tk.Label(
+    working, height = 1, width = 5, font = mainfont, textvariable = rate_text
 )
 speed_text_l = tk.Label(
     working, text = '• Current learning rate:', font = mainfont
 )
 error_text_l = tk.Label(
-    working, text = '• Cost function value:', font = mainfont
+    working, text = '• MSE value:', font = mainfont
 )
-error_box_l = tk.Text(
-    working, height = 1, width = 5, font = mainfont, insertontime = 0
+error_box_l = tk.Label(
+    working, height = 1, width = 5, font = mainfont, textvariable = mse_text
 )
 mode_text_l = tk.Label(
-    working, text = "The Network's in training mode",
+    working, text = "Training Control",
     font = mainfont
 )
 learning_rate_box_l = tk.Entry(working, font = mainfont, width = 5)
@@ -398,8 +442,5 @@ error_text_l.place(relx = 0.02, rely = 0.2)
 speed_box_l.place(relx = 0.72, rely = 0.1)
 speed_text_l.place(relx = 0.02, rely = 0.1)
 mode_text_l.place(relx = 0.02, rely = 0.005)
-speed_box_l.insert(tk.END, ' 0.3 ')
-error_box_l.insert(tk.END, ' 12.3 ')
-learning_info_l.insert(tk.END, 'Some info...')
 
 app.mainloop()
