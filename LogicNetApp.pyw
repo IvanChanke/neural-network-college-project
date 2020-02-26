@@ -2,8 +2,8 @@ import tkinter as tk
 from PIL import Image, ImageTk
 from time import strftime
 import pickle
-import network_code_eng as net
-import training_data as dt
+import ptron as pt
+import tdata as dt
 
 # GLOBAL VARIABLES
 
@@ -87,13 +87,13 @@ def initialize_model(preset):
     global training_data
 
     models = {
-        'XOR3' : net.Network((3, 2, 1), 'XOR3'),
-        'XOR2' : net.Network((2, 2, 1), 'XOR2'),
-        'AND3' : net.Network((3, 2, 1), 'AND3'),
-        'OR3' : net.Network((3, 2, 1), 'OR3')
+        'XOR3' : pt.Network((3, 2, 1), 'XOR3'),
+        'XOR2' : pt.Network((2, 2, 1), 'XOR2'),
+        'AND3' : pt.Network((3, 2, 1), 'AND3'),
+        'OR3' : pt.Network((3, 2, 1), 'OR3')
     }
     training_data = dt.data[preset]
-    
+
     model = models[preset]
     status_text.set('Unsaved {}'.format(preset))
 
@@ -128,6 +128,18 @@ def set_lrate():
     learning_rate = float(learning_rate_box_l.get())
     print(learning_rate)
     rate_text.set(learning_rate)
+
+def start_training():
+
+    pass
+
+def stop_training():
+
+    pass
+
+def reset_model():
+
+    pass
 
 app = DigitsRecognizerApp()
 
@@ -389,9 +401,18 @@ update_rate_l = tk.Button(
     working, text = 'Set learning rate', width = 13,
     font = mainfont, command = lambda: set_lrate()
     )
-reset_l = tk.Button(working, text = 'Reset', width = 7, font = mainfont)
-start_l = tk.Button(working, text = 'Start', width = 7, font = mainfont)
-stop_l = tk.Button(working, text = 'Stop', width = 7, font = mainfont)
+reset_l = tk.Button(
+    working, text = 'Reset', width = 7, font = mainfont,
+    command = lambda: reset_model()
+)
+start_l = tk.Button(
+    working, text = 'Start', width = 7, font = mainfont,
+    command = lambda: start_training()
+)
+stop_l = tk.Button(
+    working, text = 'Stop', width = 7, font = mainfont,
+    command = lambda: stop_training()
+)
 goquery_l = tk.Button(
     working, text = 'Query', font = mainfont,
     width = 7, command = lambda: app.show_frame('Query')
