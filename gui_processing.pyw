@@ -49,7 +49,7 @@ def select_number():
         num_entry.insert(tk.END, 'X')
     else:
         num_entry.delete(0, tk.END)
-        num_entry.insert(tk.END, '...')
+        num_entry.insert(tk.END, 'OK')
         selected_number = int(selected_number)
 
         return selected_number
@@ -66,6 +66,8 @@ def load_model():
         model_name = file
         f.close()
         status_text.set(model_name)
+        file_name_entry.delete(0, tk.END)
+        file_name_entry.insert(tk.END, 'Model loaded')
     except:
         file_name_entry.delete(0, tk.END)
         file_name_entry.insert(tk.END, 'No such file')
@@ -78,6 +80,27 @@ def initialize_model(nlayers, n_first, n_hidden1, n_nidden2, n_last): # FUNCTION
     for i in range(nlayers):
         pass
     model = net.Network(structure)
+
+def delete_model():
+
+    global model
+    global model_name
+
+    model = None
+    status_text.set('No model loaded')
+    file_name_entry.delete(0, tk.END)
+    file_name_entry.insert(tk.END, 'Model deleted')
+
+def save_model():
+
+    global model
+
+    file = str(file_name_entry.get())
+    f = open(file, 'wb')
+    pickle.dump(model, f)
+    file_name_entry.delete(0, tk.END)
+    file_name_entry.insert(tk.END, 'Model saved')
+    f.close()
 
 
 def update_time():
@@ -151,7 +174,7 @@ status_box = tk.Label(
 )
 
 if (model == None):
-    status_text.set('No model loaded')
+    status_text.set('No loaded model')
 
 
 status_box.place(anchor = 'c', relx = 0.5, rely = 0.4)
@@ -179,7 +202,17 @@ get_model = tk.Button(
     working, text = 'Get Model', font = mainfont,
     width = 20, command = lambda: load_model()
 )
-get_model.place(anchor = 'c', relx = 0.5, rely = 0.3)
+delete_model_button = tk.Button(
+    working, text = 'Delete Model', font = mainfont,
+    width = 20, command = lambda: delete_model()
+)
+save_model_button = tk.Button(
+    working, text = 'Save Model', font = mainfont,
+    width = 20, command = lambda: save_model()
+)
+save_model_button.place(anchor = 'c', relx = 0.5, rely = 0.69)
+delete_model_button.place(anchor = 'c', relx = 0.5, rely = 0.79)
+get_model.place(anchor = 'c', relx = 0.5, rely = 0.59)
 done_load.place(anchor = 'c', relx = 0.77, rely = 0.9)
 
 # Labels, Text and Entries
@@ -188,16 +221,17 @@ enter_path_to_model_label = tk.Label(
     font = mainfont
 )
 instructions_load_label = tk.Label(
-    working, text = 'To load a model, \n enter the file name above \n and press "Get Model"',
+    working, text = 'To load a model, \n enter the file name below \n \
+    and press "Get Model"\n To save,\n enter the name and press \n "Save Model"',
     font = mainfont
 )
 file_name_entry = tk.Entry(
     working, font = mainfont, width = 20,
 )
 
-file_name_entry.place(anchor = 'c', relx = 0.5, rely = 0.2)
-instructions_load_label.place(anchor = 'c', relx = 0.5, rely = 0.5)
-enter_path_to_model_label.place(anchor = 'c', relx = 0.5, rely = 0.1)
+file_name_entry.place(anchor = 'c', relx = 0.5, rely = 0.49)
+instructions_load_label.place(anchor = 'c', relx = 0.5, rely = 0.19)
+enter_path_to_model_label.place(anchor = 'c', relx = 0.5, rely = 0.39)
 
 #---QUERY---
 working = app.frames['Query']
