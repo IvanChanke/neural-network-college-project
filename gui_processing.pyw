@@ -191,6 +191,19 @@ done_new = tk.Button(
 
 done_new.place(anchor = 'c', relx = 0.77, rely = 0.9)
 
+# Labels, Text and Entries
+
+instructions_new_label = tk.Label(
+    working, text = 'To create a new model,\n set the configuration \n \
+    and press "Create Model"\n To save, go to "Load" page',
+    font = mainfont
+)
+
+instructions_new_label.place(anchor = 'c', relx = 0.5, rely = 0.15)
+
+
+
+
 #---LOAD---
 working = app.frames['Load']
 # Buttons
