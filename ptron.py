@@ -255,7 +255,11 @@ class Network:
         print('MSE:', self.mse)
         print('----------------')
 
-    def save_model(self, file):
+
+
+
+
+    def save(self, file):
         """
         Stores current model as a file
         """

@@ -4,6 +4,7 @@ from time import strftime
 import pickle
 import ptron as pt
 import tdata as dt
+import time
 
 # GLOBAL VARIABLES
 
@@ -77,6 +78,7 @@ def load_model():
         status_text.set(model_name)
         file_name_entry.delete(0, tk.END)
         file_name_entry.insert(tk.END, 'Model loaded')
+        mse_text.set(model.mse)
     except:
         file_name_entry.delete(0, tk.END)
         file_name_entry.insert(tk.END, 'No such file')
@@ -96,6 +98,7 @@ def initialize_model(preset):
 
     model = models[preset]
     status_text.set('Unsaved {}'.format(preset))
+    mse_text.set(model.mse)
 
 def delete_model():
 
@@ -129,17 +132,35 @@ def set_lrate():
     print(learning_rate)
     rate_text.set(learning_rate)
 
-def start_training():
+def learn():
 
-    pass
+    global model
 
-def stop_training():
+    if (model != None):
+        learning_status_text.set('Learning \n in progress')
+        iterations = int(iterations_entry.get())
+        i = 0
+        for i in range(iterations):
+            # try:
+            #     mse_text.set('{:.3f}'.format(model.mse))
+            # except:
+            #     pass
+            model.learning_iteration(training_data, learning_rate)
+        learning_status_text.set('Currently\nnot\nlearning')
+    else:
+        learning_status_text.set('No\nmodel\ndetected')
+        iterations_entry.delete(0, tk.END)
+        iterations_entry.insert(tk.END, 'X')
 
-    pass
 
 def reset_model():
 
-    pass
+    global model
+
+    rate_text.set(0)
+    mse_text.set(None)
+    initialize_model(model.task)
+
 
 app = DigitsRecognizerApp()
 
@@ -149,7 +170,7 @@ status_text.set('No loaded model')
 mse_text = tk.StringVar()
 mse_text.set(None)
 rate_text = tk.StringVar()
-rate_text.set(None)
+rate_text.set(0)
 learning_status_text = tk.StringVar()
 learning_status_text.set('Currently\nnot\nlearning')
 
@@ -407,7 +428,7 @@ reset_l = tk.Button(
 )
 start_l = tk.Button(
     working, text = 'Start', width = 7, font = mainfont,
-    command = lambda: start_training()
+    command = lambda: learn()
 )
 stop_l = tk.Button(
     working, text = 'Stop', width = 7, font = mainfont,
@@ -428,8 +449,7 @@ gohome_l = tk.Button(
 
 update_rate_l.place(anchor = 'se', relx = 0.92, rely = 0.8)
 reset_l.place(anchor = 'c', relx = 0.23, rely = 0.6)
-start_l.place(anchor = 'c', relx = 0.23, rely = 0.4)
-stop_l.place(anchor = 'c', relx = 0.23, rely = 0.5)
+start_l.place(anchor = 'c', relx = 0.23, rely = 0.5)
 goquery_l.place(anchor = 'c', relx = 0.23, rely = 0.9)
 gohome_l.place(anchor = 'c', relx = 0.5, rely = 0.9)
 exit_l.place(anchor = 'c', relx = 0.77, rely = 0.9)
@@ -454,8 +474,18 @@ mode_text_l = tk.Label(
     working, text = "Training Control",
     font = mainfont
 )
-learning_rate_box_l = tk.Entry(working, font = mainfont, width = 5)
+iterations_text = tk.Label(
+    working, height = 1, width = 7, font = mainfont, text = 'Enter n:'
+)
+iterations_entry = tk.Entry(
+    working, width = 5, font = mainfont
+)
+learning_rate_box_l = tk.Entry(
+    working, font = mainfont, width = 5
+)
 
+iterations_text.place(anchor = 'c', relx = 0.23, rely = 0.32)
+iterations_entry.place(anchor = 'c', relx = 0.23, rely = 0.4)
 learning_rate_box_l.place(anchor = 'se', relx = 0.33, rely = 0.79)
 learning_info_l.place(anchor = 'c', relx = 0.65, rely = 0.5)
 error_box_l.place(relx = 0.725, rely = 0.2)
@@ -463,5 +493,6 @@ error_text_l.place(relx = 0.02, rely = 0.2)
 speed_box_l.place(relx = 0.72, rely = 0.1)
 speed_text_l.place(relx = 0.02, rely = 0.1)
 mode_text_l.place(relx = 0.02, rely = 0.005)
+learning_rate_box_l.insert(tk.END, '0')
 
 app.mainloop()
