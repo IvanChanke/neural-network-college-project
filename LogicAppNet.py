@@ -111,7 +111,21 @@ def initialize_model(preset):
     query_buttons = [goquery_h, goquery_l]
     for button in query_buttons:
         button['state'] = 'normal'
+    send_buttons = [
+        send_1_0_0, send_1_0_1, send_1_1_0, send_1_1_1
+    ]
+    if preset == 'XOR2':
+        for button in send_buttons:
+            button['state'] = 'disabled'
+    else:
+        for button in send_buttons:
+            button['state'] = 'normal'
 
+def send(signal):
+    try:
+        model.ask(signal)
+    except:
+        model.ask(signal[1:])
 
 def delete_model():
 
@@ -367,35 +381,35 @@ working = app.frames['Query']
 # )
 send_0_0_0 = tk.Button(
     working, text = 'Send 0-0-0', font = mainfont, width = 18,
-    command = lambda: model.ask([0, 0, 0])
+    command = lambda: send([0, 0, 0])
 )
 send_0_0_1 = tk.Button(
     working, text = 'Send 0-0-1', font = mainfont, width = 18,
-    command = lambda: model.ask([0, 0, 1])
+    command = lambda: send([0, 0, 1])
 )
 send_0_1_0 = tk.Button(
     working, text = 'Send 0-1-0', font = mainfont, width = 18,
-    command = lambda: model.ask([0, 1, 0])
+    command = lambda: send([0, 1, 0])
 )
 send_0_1_1 = tk.Button(
     working, text = 'Send 0-1-1', font = mainfont, width = 18,
-    command = lambda: model.ask([0, 1, 1])
+    command = lambda: send([0, 1, 1])
 )
 send_1_0_0 = tk.Button(
     working, text = 'Send 1-0-0', font = mainfont, width = 18,
-    command = lambda: model.ask([1, 0, 0])
+    command = lambda: send([1, 0, 0])
 )
 send_1_0_1 = tk.Button(
     working, text = 'Send 1-0-1', font = mainfont, width = 18,
-    command = lambda: model.ask([1, 0, 1])
+    command = lambda: send([1, 0, 1])
 )
 send_1_1_0 = tk.Button(
     working, text = 'Send 1-1-0', font = mainfont, width = 18,
-    command = lambda: model.ask([1, 1, 0])
+    command = lambda: send([1, 1, 0])
 )
 send_1_1_1 = tk.Button(
     working, text = 'Send 1-1-1', font = mainfont, width = 18,
-    command = lambda: model.ask([1, 1, 1])
+    command = lambda: send([1, 1, 1])
 )
 golearn_q = tk.Button(
     working, text = 'Train', font = mainfont, width = 7,
