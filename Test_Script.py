@@ -1,13 +1,13 @@
-import network_code_eng as net
+import ptron as net
 import numpy as np
 """
 XOR CURRENTLY PROGRAMMED IN
 """
 
+a = net.Network((3, 4, 1), 'XOR')
 
-a = net.load_model('XOR8000')
 i = 0
-while i < 2000:
+while i < 5000:
     i += 1
     batch = (
         (np.array([0, 0, 0]), np.array([0])),
@@ -22,5 +22,3 @@ while i < 2000:
     a.learning_iteration(batch, 0.7)
     print('Epoch {}'.format(a.epochs))
     print('----------------------')
-
-a.save_model('XOR6000')

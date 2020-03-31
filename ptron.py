@@ -179,13 +179,13 @@ class Network:
         Task it performs
     Initializing a network also initializes its layers and nodes in them
     """
-    def __init__(self, structure, task): # Structure is a tuple of nnodes in each layer
+    def __init__(self, structure): # Structure is a tuple of nnodes in each layer
 
+        self.structure = structure
         self.signal = None
         self.layers = []
         self.mse = None
         self.epochs = 0
-        self.task = task
 
         for i in range(len(structure)): # Constructing layers
             self.layers.append(Layer(structure[i], i))
@@ -236,8 +236,6 @@ class Network:
 
             self.feed_backward(error_vector, learning_rate)
 
-            #print(instance[0], ':', output, "| e:", error_vector)
-            #print((np.where(instance[1] == 1))[0], ':', np.around(output, decimals = 4))
             print(instance[0], ':', output)
 
 
@@ -266,3 +264,10 @@ class Network:
         f = open(file, 'wb')
         pickle.dump(self, f)
         f.close()
+
+    def ask(self, question):
+
+        output = sigmoid(self.feed_forward(np.array(question)))
+        print('----------------')
+        print('Input:', np.array(question))
+        print('Response:', output)
