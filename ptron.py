@@ -236,7 +236,8 @@ class Network:
 
             self.feed_backward(error_vector, learning_rate)
 
-            print(instance[0], ':', output)
+            #print(instance[0], ':', output)
+            print(output)
 
 
         for node in self.layers[0].nodes:
@@ -271,3 +272,5 @@ class Network:
         print('----------------')
         print('Input:', np.array(question))
         print('Response:', output)
+
+print('Successfully imported ptron')
